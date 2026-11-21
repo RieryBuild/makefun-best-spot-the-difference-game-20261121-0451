@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twin Hearth — Spot the Difference</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ======================= PLAY STAGE ======================= -->
+  <main id="stage">
+    <header id="hud-bar">
+      <div class="hud-left">
+        <div id="scene-dots" aria-label="Scene progress"></div>
+        <span id="scene-name" class="scene-name"></span>
+      </div>
+
+      <div class="hud-center">
+        <div id="timer-wrap" class="timer-wrap">
+          <svg class="timer-ring" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="timer-track" cx="22" cy="22" r="15.5"></circle>
+            <circle id="timer-ring" class="timer-progress" cx="22" cy="22" r="15.5"></circle>
+          </svg>
+          <span id="timer-text" class="timer-text">4:00</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="counter-pill" title="Differences remaining">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>
+          <span id="left-count" class="left-count">8</span>
+          <span class="left-label">LEFT</span>
+        </div>
+        <span id="found-count" class="found-count">0/8</span>
+        <div class="score-pill" title="Score">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="currentColor"/></svg>
+          <span id="score">0</span>
+        </div>
+        <span id="combo" class="combo"></span>
+      </div>
+    </header>
+
+    <section id="panels">
+      <div class="panel-wrap">
+        <canvas id="panel-left" width="640" height="480"></canvas>
+        <div id="dots-left" class="found-dots" aria-hidden="true"></div>
+      </div>
+      <div class="panel-divider" aria-hidden="true"><span class="divider-diamond"></span></div>
+      <div class="panel-wrap">
+        <canvas id="panel-right" width="640" height="480"></canvas>
+        <div id="dots-right" class="found-dots" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <footer id="action-bar">
+      <button id="btn-hint" class="icon-btn" title="Hint (H) — 3 per scene" aria-label="Hint">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21h6v-1.5H9zM12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0 0 12 2z" fill="currentColor"/></svg>
+        <span id="hint-pips" class="hint-pips"></span>
+      </button>
+      <button id="btn-mag" class="icon-btn" title="Magnifier (M)" aria-label="Magnifier">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <button id="btn-sound" class="icon-btn" title="Sound" aria-label="Sound">
+        <svg class="icon icon-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="icon icon-sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><line x1="16" y1="9" x2="22" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="9" x2="16" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button id="btn-pause" class="icon-btn" title="Pause (P)" aria-label="Pause">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-restart" class="icon-btn" title="Restart scene (R)" aria-label="Restart scene">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V1.8L6.8 6 12 10.2V7a5 5 0 1 1-5 5H4.5A7.5 7.5 0 1 0 12 5z" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-help" class="icon-btn" title="How to play" aria-label="How to play">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.5 9.2a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.2 1-1.2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.3" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-menu" class="icon-btn" title="Title screen (Esc)" aria-label="Title screen">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>
+      </button>
+    </footer>
+  </main>
+
+  <!-- Magnifier lens -->
+  <div id="lens" style="display:none"><canvas id="lens-canvas" width="180" height="180"></canvas></div>
+
+  <!-- ======================= TITLE ======================= -->
+  <section id="screen-title" class="overlay">
+    <div class="title-card">
+      <p class="title-kicker">A SPOT-THE-DIFFERENCE GAME</p>
+      <h1 class="title-logo">Twin Hearth</h1>
+      <p class="title-tag">Four rooms. Thirty-two small betrayals. One sharp eye.</p>
+      <div class="title-preview-frame">
+        <canvas id="title-preview" width="480" height="360"></canvas>
+        <span class="preview-caption">Scene 1 · The Reading Nook</span>
+      </div>
+      <button id="btn-play" class="big-btn">▶&nbsp; Play</button>
+      <p id="title-best" class="title-best"></p>
+      <div class="title-controls">
+        <span><kbd>Click</kbd> a difference</span>
+        <span><kbd>←↑↓→</kbd> move cursor</span>
+        <span><kbd>Enter</kbd> check spot</span>
+        <span><kbd>H</kbd> hint</span>
+        <span><kbd>M</kbd> magnifier</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= SCENE CLEAR ======================= -->
+  <section id="overlay-scene-clear" class="overlay hidden">
+    <div class="card">
+      <p class="card-kicker">SCENE CLEAR</p>
+      <h2 id="clear-scene-name" class="card-title"></h2>
+      <p id="clear-stats" class="card-line"></p>
+      <p id="clear-bonus" class="card-line bonus"></p>
+      <button id="btn-next" class="big-btn"><span id="clear-next-label">Next scene</span> →</button>
+    </div>
+  </section>
+
+  <!-- ======================= TIMEOUT ======================= -->
+  <section id="overlay-timeout" class="overlay hidden">
+    <div class="card">
+      <p class="card-kicker">TIME'S UP</p>
+      <h2 class="card-title">The clock beat you</h2>
+      <p class="card-line">in <span id="timeout-scene-name"></span> — the differences are still hiding.</p>
+      <div class="card-buttons">
+        <button id="btn-retry" class="big-btn">↻&nbsp; Retry scene</button>
+        <button id="btn-timeout-menu" class="ghost-btn">Title screen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= END ======================= -->
+  <section id="overlay-end" class="overlay hidden">
+    <div class="card">
+      <p class="card-kicker">ALL SCENES CLEAR</p>
+      <div id="end-stars" class="end-stars"></div>
+      <p id="end-score" class="end-score">0</p>
+      <p id="end-accuracy" class="card-line"></p>
+      <p id="end-time" class="card-line"></p>
+      <p id="end-best" class="card-line"></p>
+      <span id="end-new-best" class="new-best hidden">NEW BEST</span>
+      <br>
+      <button id="btn-again" class="big-btn">↻&nbsp; Play again</button>
+    </div>
+  </section>
+
+  <!-- ======================= PAUSE ======================= -->
+  <section id="overlay-pause" class="overlay hidden">
+    <div class="card">
+      <p class="card-kicker">PAUSED</p>
+      <h2 class="card-title">Take a breath</h2>
+      <p class="card-line">The timer is waiting for you.</p>
+      <div class="card-buttons">
+        <button id="btn-resume" class="big-btn">▶&nbsp; Resume</button>
+        <button id="btn-pause-menu" class="ghost-btn">Title screen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= HELP ======================= -->
+  <section id="overlay-help" class="overlay hidden">
+    <div class="card">
+      <p class="card-kicker">HOW TO PLAY</p>
+      <h2 class="card-title">Find every difference</h2>
+      <div class="help-grid">
+        <span><kbd>Click</kbd></span><span>Test a spot on either picture</span>
+        <span><kbd>← ↑ ↓ →</kbd></span><span>Move the keyboard crosshair (Shift = fine)</span>
+        <span><kbd>Tab</kbd></span><span>Switch pictures</span>
+        <span><kbd>Enter</kbd></span><span>Check the crosshair spot</span>
+        <span><kbd>H</kbd></span><span>Hint — 3 per scene, brief ring</span>
+        <span><kbd>M</kbd></span><span>Magnifier lens</span>
+        <span><kbd>P</kbd></span><span>Pause</span>
+        <span><kbd>R</kbd></span><span>Restart scene</span>
+      </div>
+      <p class="card-line">Wrong clicks cost 25 points and break your combo. Finds in a row build it.</p>
+      <button id="btn-help-close" class="big-btn">Got it</button>
+    </div>
+  </section>
+
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
